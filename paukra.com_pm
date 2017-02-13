@@ -3,7 +3,7 @@
 
 #name=btsoot
 #learn_more=git.paukra.com/open-source/btsoot
-#repo=https://git.paukra.com/open-source/btsoot.git
+#repo=https://github.com/paulkramme/btsoot
 #folder=btsoot
 #rename_from=btsoot.py
 #rename_to=btsoot
@@ -20,11 +20,24 @@ update_system() {
     sudo apt-get upgrade
 }
 
-#update_program() {
-    #update_system
-    #uninstall
-    #install_program
-#}
+update_program() {
+    cd /etc/$folder
+    git tag
+    echo "Your current version is: $(git describe --tags)"
+    read -p "Please enter version: " version
+    read -p "Do you really want to change version? (y/n)  " dec
+    
+    if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+	then
+	    sudo git checkout  $version
+	    sudo rm /usr/local/bin/$rename_to
+	    cd /etc/$folder
+	    sudo mv $rename_from $rename_to
+	    sudo cp /etc/$folder/$rename_to /usr/local/bin
+    fi
+    sleep 4
+    main
+}
 
 install_program() {
     echo "The system will be updated."
@@ -32,16 +45,24 @@ install_program() {
     
     if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
         then
+	    sudo apt-get install git
             #echo "fehlerfrei"
             update_system
-            echo "test"
+            #echo "test"
             cd /etc
             sudo git clone $repo
             cd /etc/$folder
             sudo mv $rename_from $rename_to
             sudo cp /etc/$folder/$rename_to /usr/local/bin
+            read -p "Do you want to choose version? (y/n)  " dec
+            
+            if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+		then
+		    update_program
+	    fi
     fi
-    #main
+    sleep 4
+    main
 }
 
 uninstall() {
@@ -52,6 +73,7 @@ uninstall() {
             sudo rm -r /etc/$folder
             sudo rm /usr/local/bin/$rename_to
     fi
+    sleep 4
     main
 }
 
@@ -69,7 +91,7 @@ menue1() {
     echo "learn more    (h)"
     echo "quit          (q)"
     read -p ": " dec
-    #echo $dec
+    
     case "$dec" in
         u)  update_program
             ;;
@@ -77,8 +99,11 @@ menue1() {
             ;;
         h)  learn_more
             ;;
-        q)  exit
+        q)  clear
+	    exit
             ;;
+        m)  menue2
+	    ;;
         *)  main
             ;;
     esac
@@ -92,7 +117,7 @@ menue2() {
     echo "learn more    (h)"
     echo "quit          (q)"
     read -p ": " dec
-    #echo $dec
+    
     case "$dec" in
         i)  install_program
             ;;
@@ -100,17 +125,17 @@ menue2() {
             ;;
         h)  learn_more
             ;;
-        q)  exit
+        q)  clear
+	    exit
             ;;
+        m)  menue1
+	    ;;
         *)  main
             ;;
     esac
 }
 
-
 main() {
-clear
-#echo "hallo"
     
 if [ -x /usr/local/bin/$rename_to ]
     then
@@ -120,5 +145,5 @@ if [ -x /usr/local/bin/$rename_to ]
 fi
 }
 
-#main
+#real main funktion
 main
