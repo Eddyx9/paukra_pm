@@ -1,26 +1,59 @@
 #!/bin/bash
 #paukra.com_pm
 
-#name=btsoot
-#learn_more=git.paukra.com/open-source/btsoot
-#repo=https://github.com/paulkramme/btsoot
-#folder=btsoot
-#rename_from=btsoot.py
-#rename_to=btsoot
+# name=btsoot
+# learn_more=git.paukra.com/open-source/btsoot
+# repo=https://github.com/paulkramme/btsoot
+# folder=btsoot
+
+#config and log file:
+config=paukra.com_pm.conf
+log=${0%/*}/paukra.com_pm.log
+###############################################################################
+
+source $config
 
 ###############################################################################
 
-source paukra.com_pm.conf
+language_c() {
+    # install if program is in c (needs makefile)
+    sudo apt-get install build-essential >> $log
+    sudo make $name >> $log
+    sudo cp $name /usr/local/bin >> $log
+    echo "language=c" >> $log
+}
 
-###############################################################################
+language_py() {
+    # install if program is in python
+    sudo mv $name.py $name >> $log
+    sudo cp $name /usr/local/bin >> $log
+    echo "language=py" >> $log
+}
+
+test_language() {
+    # identify right language
+    cd /etc/$folder
+    
+    if [ -e $name.c ]
+        then
+            language_c
+        elif [ -x $name -o -x $name.py ]
+            then
+                language_py
+        else
+            echo "ERROR: no valid language or no main program" >> $log
+    fi
+}
 
 update_system() {
-    echo "system updated"
-    sudo apt-get update
-    sudo apt-get upgrade
+    # updates system
+    sudo apt-get update >> $log
+    sudo apt-get upgrade >> $log
+    echo "updated system" >> $log
 }
 
 update_program() {
+    # choose progam version
     cd /etc/$folder
     git tag
     echo "Your current version is: $(git describe --tags)"
@@ -29,31 +62,27 @@ update_program() {
     
     if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
 	then
-	    sudo git checkout  $version
-	    sudo rm /usr/local/bin/$rename_to
-	    cd /etc/$folder
-	    sudo mv $rename_from $rename_to
-	    sudo cp /etc/$folder/$rename_to /usr/local/bin
+	    sudo git checkout  $version >> $log
+	    test_language
+	    echo "updated program"  >> $log
     fi
-    sleep 4
+    sleep 3
     main
 }
 
 install_program() {
+    # install program (first master)
     echo "The system will be updated."
     read -p "Do you really want to install $folder? (y/n)  " dec
     
     if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
         then
-	    sudo apt-get install git
-            #echo "fehlerfrei"
+	    sudo apt-get install git >> $log
             update_system
-            #echo "test"
             cd /etc
-            sudo git clone $repo
-            cd /etc/$folder
-            sudo mv $rename_from $rename_to
-            sudo cp /etc/$folder/$rename_to /usr/local/bin
+            sudo git clone $repo >> $log
+            test_language
+            echo "installed program" >> $log
             read -p "Do you want to choose version? (y/n)  " dec
             
             if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
@@ -61,28 +90,33 @@ install_program() {
 		    update_program
 	    fi
     fi
-    sleep 4
+    sleep 3
     main
 }
 
 uninstall() {
+    # uninstall program
     read -p "Do you really want to uninstall $folder? (y/n)  " dec
     
     if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
         then
-            sudo rm -r /etc/$folder
-            sudo rm /usr/local/bin/$rename_to
+            sudo rm -r /etc/$folder >> $log
+            sudo rm /usr/local/bin/$name >> $log
+            echo "removed program" >> $log
     fi
-    sleep 4
+    sleep 3
     main
 }
 
 learn_more() {
+    # link to website for more information
     firefox $learn_more
+    echo "learned more" >> $log
     main
 }
 
 menue1() {
+    # menue if installed
     clear
     echo "btsoot installed"
     echo "do you want to:"
@@ -110,6 +144,7 @@ menue1() {
 }
 
 menue2() {
+    # menue if not installed
     clear
     echo "btsoot not installed"
     echo "do you want to:"
@@ -136,14 +171,17 @@ menue2() {
 }
 
 main() {
-    
-if [ -x /usr/local/bin/$rename_to ]
-    then
-        menue1
-    else
-        menue2
-fi
+    # test if installed or not
+    if [ -x /usr/local/bin/$name ]
+        then
+            menue1
+        else   
+            menue2
+    fi 
 }
 
-#real main funktion
+# real main funktion
+# delete old log file and make new one
+sudo rm ${0%/*}/paukra.com_pm.log
+echo "start ${0##*/}" > $log
 main
