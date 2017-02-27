@@ -1,0 +1,149 @@
+#!/bin/bash
+#paukra.com_pm
+
+#name=btsoot
+#learn_more=git.paukra.com/open-source/btsoot
+#repo=https://github.com/paulkramme/btsoot
+#folder=btsoot
+#rename_from=btsoot.py
+#rename_to=btsoot
+
+###############################################################################
+
+source paukra.com_pm.conf
+
+###############################################################################
+
+update_system() {
+    echo "system updated"
+    sudo apt-get update
+    sudo apt-get upgrade
+}
+
+update_program() {
+    cd /etc/$folder
+    git tag
+    echo "Your current version is: $(git describe --tags)"
+    read -p "Please enter version: " version
+    read -p "Do you really want to change version? (y/n)  " dec
+    
+    if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+	then
+	    sudo git checkout  $version
+	    sudo rm /usr/local/bin/$rename_to
+	    cd /etc/$folder
+	    sudo mv $rename_from $rename_to
+	    sudo cp /etc/$folder/$rename_to /usr/local/bin
+    fi
+    sleep 4
+    main
+}
+
+install_program() {
+    echo "The system will be updated."
+    read -p "Do you really want to install $folder? (y/n)  " dec
+    
+    if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+        then
+	    sudo apt-get install git
+            #echo "fehlerfrei"
+            update_system
+            #echo "test"
+            cd /etc
+            sudo git clone $repo
+            cd /etc/$folder
+            sudo mv $rename_from $rename_to
+            sudo cp /etc/$folder/$rename_to /usr/local/bin
+            read -p "Do you want to choose version? (y/n)  " dec
+            
+            if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+		then
+		    update_program
+	    fi
+    fi
+    sleep 4
+    main
+}
+
+uninstall() {
+    read -p "Do you really want to uninstall $folder? (y/n)  " dec
+    
+    if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+        then
+            sudo rm -r /etc/$folder
+            sudo rm /usr/local/bin/$rename_to
+    fi
+    sleep 4
+    main
+}
+
+learn_more() {
+    firefox $learn_more
+    main
+}
+
+menue1() {
+    clear
+    echo "btsoot installed"
+    echo "do you want to:"
+    echo "update        (u)"
+    echo "uninstall     (d)"
+    echo "learn more    (h)"
+    echo "quit          (q)"
+    read -p ": " dec
+    
+    case "$dec" in
+        u)  update_program
+            ;;
+        d)  uninstall
+            ;;
+        h)  learn_more
+            ;;
+        q)  clear
+	    exit
+            ;;
+        m)  menue2
+	    ;;
+        *)  main
+            ;;
+    esac
+}
+
+menue2() {
+    clear
+    echo "btsoot not installed"
+    echo "do you want to:"
+    echo "install       (i)"
+    echo "learn more    (h)"
+    echo "quit          (q)"
+    read -p ": " dec
+    
+    case "$dec" in
+        i)  install_program
+            ;;
+        d)  uninstall
+            ;;
+        h)  learn_more
+            ;;
+        q)  clear
+	    exit
+            ;;
+        m)  menue1
+	    ;;
+        *)  main
+            ;;
+    esac
+}
+
+main() {
+    
+if [ -x /usr/local/bin/$rename_to ]
+    then
+        menue1
+    else
+        menue2
+fi
+}
+
+#real main funktion
+main
