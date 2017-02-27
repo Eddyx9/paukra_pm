@@ -1,4 +1,4 @@
-# paukra.com_pm 
+# paukra_pm 
 # GPL
 # package manager
 # curl -Ssl install.paukra.com | sudo bash
