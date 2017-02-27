@@ -5,3 +5,5 @@
 # edits in config file
 # press "m" to get obverse menue
 # for more information see https://github.com/paulkramme/btsoot
+# logfile
+# test installation
