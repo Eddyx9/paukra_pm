@@ -1,0 +1,191 @@
+#!/bin/bash
+#paukra_pm
+
+# name=btsoot
+# folder=btsoot
+# repo=https://github.com/paulkramme/btsoot
+# learn_more=git.paukra.com/open-source/btsoot
+
+# config and log file:
+config=paukra_pm.conf
+log=${0%/*}/paukra_pm.log
+###############################################################################
+
+source $config
+
+###############################################################################
+
+install_exec() {
+    # install executable (c/py)
+    cd /etc/$folder
+    sudo apt-get install build-essential >> $log
+    sudo make $name >> $log
+    sudo mv $name.py $name >> $log
+    sudo cp $name /usr/local/bin >> $log
+}
+
+update_system() {
+    # updates system
+    sudo apt-get update >> $log
+    sudo apt-get upgrade >> $log
+    echo "updated system" >> $log
+}
+
+update_program() {
+    # choose progam version
+    cd /etc/$folder
+    git tag
+    echo "Your current version is: $(git describe --tags)"
+    read -p "Please enter version: " version
+    read -p "Do you really want to change version? (y/n)  " dec
+    
+    if [ $dec = "y" ] || [ $dec = "yes" ] || [ $dec = "Y" ] || [ $dec = "Yes" ] || [ $dec = "j" ]
+	then
+	    sudo git checkout  $version >> $log
+	    update_system
+	    test_language
+	    echo "updated program"  >> $log
+    fi
+    read -p "press ENTER to continue"
+    main
+}
+
+install_program() {
+    # install program (first master)
+    echo "The system will be updated."
+    read -p "Do you really want to install $folder? (y/n)  " dec
+    
+    if [ $dec = "y" ] || [ $dec = "yes" ] || [ $dec = "Y" ] || [ $dec = "Yes" ] || [ $dec = "j" ]
+        then
+	    sudo apt-get install git >> $log
+            update_system
+            cd /etc
+            sudo git clone $repo >> $log
+            test_language
+            echo "installed program" >> $log
+            read -p "Do you want to choose version? (y/n)  " dec
+            
+            if [ $dec = "y" ] || [ $dec = "yes" ] || [ $dec = "Y" ] || [ $dec = "Yes" ] || [ $dec = "j" ]
+		then
+		    update_program
+	    fi
+    fi
+    read -p "press ENTER to continue"
+    main
+}
+
+uninstall() {
+    # uninstall program
+    read -p "Do you really want to uninstall $folder? (y/n)  " dec
+    
+    if [ $dec = "y" ] || [ $dec = "yes" ] || [ $dec = "Y" ] || [ $dec = "Yes" ] || [ $dec = "j" ]
+        then
+            sudo rm -r /etc/$folder >> $log
+            sudo rm /usr/local/bin/$name >> $log
+            echo "removed program" >> $log
+    fi
+    read -p "press ENTER to continue"
+    main
+}
+
+test_installation() {
+    # what is installed and what not?
+    if [ -x /usr/local/bin/$name ] && [ -d /etc/$folder ]
+        then
+            echo "$folder (folder) and $name (exec/file) are existing:"
+            echo "$name installed"
+        elif [ -x /usr/local/bin/$name ]
+            then
+                echo "only $name (exec/file) is existing"
+        elif [ -d /etc/$folder ]
+            then
+                echo "only $folder (folder) is existing"
+        else
+            echo "$folder (folder) and $name (exec/file) are NOT existing:"
+            echo "$name not installed"
+    fi
+    read -p "press ENTER to continue" 
+    main
+}
+
+learn_more() {
+    # link to website for more information
+    firefox $learn_more
+    echo "learned more" >> $log
+    main
+}
+
+menue1() {
+    # menue if installed
+    clear
+    echo "$name installed"
+    echo "do you want to:"
+    echo "update        (u)"
+    echo "uninstall     (d)"
+    echo "test          (t)"
+    echo "learn more    (h)"
+    echo "quit          (q)"
+    read -p ": " dec
+    
+    case "$dec" in
+        u)  update_program
+            ;;
+        d)  uninstall
+            ;;
+        t)  test_installation
+            ;;   
+        h)  learn_more
+            ;;
+        q)  clear
+	    exit
+            ;;
+        m)  menue2
+	    ;;
+        *)  main
+            ;;
+    esac
+}
+
+menue2() {
+    # menue if not installed
+    clear
+    echo "$name not installed"
+    echo "do you want to:"
+    echo "install       (i)"
+    echo "test          (t)"
+    echo "learn more    (h)"
+    echo "quit          (q)"
+    read -p ": " dec
+    
+    case "$dec" in
+        i)  install_program
+            ;;
+        h)  learn_more
+            ;;
+        q)  clear
+	    exit
+            ;;
+        t)  test_installation
+            ;;
+        m)  menue1
+	    ;;
+        *)  main
+            ;;
+    esac
+}
+
+main() {
+    # test if installed or not
+    if [ -x /usr/local/bin/$name ]
+        then
+            menue1
+        else   
+            menue2
+    fi 
+}
+
+# real main funktion
+# delete old log file and make new one
+sudo rm $log
+echo "start ${0##*/}" > $log
+main
