@@ -1,0 +1,124 @@
+#!/bin/bash
+#paukra.com_pm
+
+#name=btsoot
+#learn_more=git.paukra.com/open-source/btsoot
+#repo=https://git.paukra.com/open-source/btsoot.git
+#folder=btsoot
+#rename_from=btsoot.py
+#rename_to=btsoot
+
+###############################################################################
+
+source paukra.com_pm.conf
+
+###############################################################################
+
+update_system() {
+    echo "system updated"
+    sudo apt-get update
+    sudo apt-get upgrade
+}
+
+#update_program() {
+    #update_system
+    #uninstall
+    #install_program
+#}
+
+install_program() {
+    echo "The system will be updated."
+    read -p "Do you really want to install $folder? (y/n)  " dec
+    
+    if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+        then
+            #echo "fehlerfrei"
+            update_system
+            echo "test"
+            cd /etc
+            sudo git clone $repo
+            cd /etc/$folder
+            sudo mv $rename_from $rename_to
+            sudo cp /etc/$folder/$rename_to /usr/local/bin
+    fi
+    #main
+}
+
+uninstall() {
+    read -p "Do you really want to uninstall $folder? (y/n)  " dec
+    
+    if [ $dec = "y" -o $dec = "yes" -o $dec = "Y" -o $dec = "Yes" -o $dec = "j" ]
+        then
+            sudo rm -r /etc/$folder
+            sudo rm /usr/local/bin/$rename_to
+    fi
+    main
+}
+
+learn_more() {
+    firefox $learn_more
+    main
+}
+
+menue1() {
+    clear
+    echo "btsoot installed"
+    echo "do you want to:"
+    echo "update        (u)"
+    echo "uninstall     (d)"
+    echo "learn more    (h)"
+    echo "quit          (q)"
+    read -p ": " dec
+    #echo $dec
+    case "$dec" in
+        u)  update_program
+            ;;
+        d)  uninstall
+            ;;
+        h)  learn_more
+            ;;
+        q)  exit
+            ;;
+        *)  main
+            ;;
+    esac
+}
+
+menue2() {
+    clear
+    echo "btsoot not installed"
+    echo "do you want to:"
+    echo "install       (i)"
+    echo "learn more    (h)"
+    echo "quit          (q)"
+    read -p ": " dec
+    #echo $dec
+    case "$dec" in
+        i)  install_program
+            ;;
+        d)  uninstall
+            ;;
+        h)  learn_more
+            ;;
+        q)  exit
+            ;;
+        *)  main
+            ;;
+    esac
+}
+
+
+main() {
+clear
+#echo "hallo"
+    
+if [ -x /usr/local/bin/$rename_to ]
+    then
+        menue1
+    else
+        menue2
+fi
+}
+
+#main
+main
