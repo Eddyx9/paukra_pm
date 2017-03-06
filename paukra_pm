@@ -1,17 +1,13 @@
 #!/bin/bash
 #paukra_pm
 
-# name=btsoot
-# folder=btsoot
-# repo=https://github.com/paulkramme/btsoot
-# learn_more=git.paukra.com/open-source/btsoot
+name=btsoot
+folder=btsoot
+repo=https://github.com/paulkramme/btsoot
+learn_more=git.paukra.com/open-source/btsoot
 
-# config and log file:
-config=paukra_pm.conf
+# log file:
 log=${0%/*}/paukra_pm.log
-###############################################################################
-
-source $config
 
 ###############################################################################
 
@@ -131,8 +127,14 @@ test_installation() {
 
 learn_more() {
     # link to website for more information
-    firefox $learn_more
-    echo "learned more" >> $log
+	if [ -z $learn_more ]
+	then
+		echo "sorry, learning more is not possible"
+		echo "no valid link" >> $log
+	else
+    	firefox $learn_more
+    	echo "learned more" >> $log
+    fi
     main
 }
 
