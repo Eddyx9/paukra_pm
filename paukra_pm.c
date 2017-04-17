@@ -5,17 +5,26 @@
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
-#include <unistd.h>
 
 #define EXEC  X_OK
 
 char command[256];
 
+/*
 const char name[] = "btsoot";
 const char folder[] = "btsoot";
 const char repo[] = "https://github.com/paulkramme/btsoot";
 const char learn_more[] = "git.paukra.com/open-source/btsoot";
 const char message[] = "Text Text Text Text Text Text Text Text Text Text Text";
+*/
+
+char name[256];
+char folder[256];
+char repo[256];
+char learn_more[256];
+char message[256];
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int getch(void) {
    /* enable getch()
@@ -268,6 +277,11 @@ int show_message() {
     return 0;
 }
 
+int help() {
+    printf("Here is your help");
+    return 0;
+}
+
 int menue2();
 
 int menue1() {
@@ -389,13 +403,54 @@ int choose_menue() {
     return shutdown;
 }
     
-int main() {
+int main(int argc, char *argv[]) {
     // start
     int shutdown;
     
-    do {
-        shutdown = choose_menue();
-    } while (shutdown == 0);
+    name = *argv[1];
+    folder = *argv[2];
+    repo = *argv[3];
+    learn_more = *argv[4];
+    message = *argv[5];
+
+    if (strcmp(*argv[6], "install")) {
+	printf("123");
+    }
     
+    work in progress...
+    
+    /*
+    switch(*argv[6]) {
+      case "install": {
+	  install_program();
+	  break;
+      }
+      case "more": {
+	  learn_more2();
+	  break;
+      }
+      case "message": {
+	  show_message();
+	  break;
+      }
+      case "update": {
+	  update_program();
+	  break;
+      }
+      case "uninstall": {
+	  uninstall();
+	  break;
+      }
+      case "help": {
+	  help();
+	  break;
+      }
+      default: {
+	  do {
+		shutdown = choose_menue();
+	  } while (shutdown == 0);
+      }
+    }
+    */
     return 0;
 }

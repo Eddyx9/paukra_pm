@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# arguments for C installer
+name=btsoot
+folder=btsoot
+repo=https://github.com/paulkramme/btsoot
+learn_more=git.paukra.com/open-source/btsoot
+message="Text Text Text Text Text Text Text Text Text Text Text"
+
+# information for sh installer
+binstaller_name=xyz
+irepo=xyz
+irepo_name=xyz
+
+###########################################################################################################
+
+information() {
+	echo "This shell skript installs the main installer written in C"
+	echo "warning: if installer is installed, using the existing program is default"
+	echo "otherwise using x86 is default"
+	
+	echo "press ? for help"
+	echo "press 1 for x86"
+	echo "press 2 for x64"
+	echo "press 3 for local compiling"
+	echo "press any other key for default"
+	choose_installation
+}
+
+binstall() {
+	cd /etc
+	git clone $repo
+	
+	if [ $dec -eq 1 ] ; then
+		mv x86.out $binstaller_name
+	elif [ $dec -eq 2 ] ; then
+		mv x64.out $binstaller_name
+	else
+		#make...
+	fi
+	
+	cp $repo_name/$binstaller_name /usr/local/bin
+	rm -r /etc/$repo_x86_name
+	execute
+}
+
+default() {
+	if [ -x /usr/local/bin/$binstaller_name ] ; then
+		execute
+	else 
+		dec=1
+		binstall
+	fi
+}
+
+
+execute() {
+	$binstaller_name $name $folder $repo $learn_more $message $1
+}
+
+choose_installation() {
+	if [ -x /usr/local/bin/$binstaller_name ] ; then
+		echo "bin existing"
+	fi
+	
+	echo "choose a kind of installation for the installer:"
+	echo "press ? for help"
+	read dec
+
+	case $dec in
+		?)	information
+		;;
+		1|2|3)	binstall
+		;;
+		*)	default
+}
+
+choose_installation
